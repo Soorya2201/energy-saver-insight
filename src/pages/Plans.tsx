@@ -1,9 +1,11 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Check } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 import tisPureLogo from "@/assets/tis-pure-logo.png";
 
 const Plans = () => {
+  const navigate = useNavigate();
   const plans = [
     {
       name: "Basic Plan",
@@ -77,6 +79,7 @@ const Plans = () => {
                   className="w-full"
                   size="lg"
                   variant={plan.recommended ? "default" : "outline"}
+                  onClick={() => navigate("/thank-you")}
                 >
                   {plan.recommended ? "Proceed to Payment" : "Choose Plan"}
                 </Button>
