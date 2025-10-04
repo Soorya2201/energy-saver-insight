@@ -1,21 +1,26 @@
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { Zap, TrendingDown, Leaf, ArrowRight } from "lucide-react";
 import tisPureLogo from "@/assets/tis-pure-logo.png";
+import { calculateTNEBBill, tnElectricityCO2 } from "@/lib/electricityCalculations";
 
 const Dashboard = () => {
   const navigate = useNavigate();
+  const [biMonthlyUnits, setBiMonthlyUnits] = useState<string>("");
 
-  // Dummy data for analytics
-  const analyticsData = {
-    monthlyConsumption: 360,
-    annualConsumption: 4320,
-    moneySpentPerAnnum: 25920,
-    co2Emissions: 3.2,
-    potentialSavings: 15552,
-  };
+  // Calculate annual values based on bi-monthly input
+  const units = parseFloat(biMonthlyUnits) || 0;
+  const annualConsumption = units * 6;
+  const biMonthlyBill = calculateTNEBBill(units);
+  const moneySpentPerAnnum = biMonthlyBill * 6;
+  const co2Data = tnElectricityCO2(units);
+  const co2Emissions = co2Data.tCO2 * 6;
+  const potentialSavings = moneySpentPerAnnum * 0.6;
 
   return (
     <div className="min-h-screen bg-background">
@@ -28,15 +33,35 @@ const Dashboard = () => {
       </header>
 
       <main className="container mx-auto px-4 py-8 max-w-4xl space-y-8">
-        {/* Consumption Card */}
+        {/* Consumption Input Card */}
         <Card className="bg-gradient-to-br from-primary/10 to-info/10 border-primary/20">
           <CardHeader>
-            <CardTitle className="text-center text-3xl font-bold">
-              {analyticsData.annualConsumption.toLocaleString()} (kWh)
+            <CardTitle className="text-center text-xl font-bold mb-4">
+              Your Annual Electricity Consumption
             </CardTitle>
-            <p className="text-center text-sm text-muted-foreground">
-              Your annual electricity consumption
-            </p>
+            <div className="space-y-2 max-w-md mx-auto">
+              <Label htmlFor="bimonthly-units">
+                Enter Bi-Monthly Consumption (kWh)
+              </Label>
+              <Input
+                id="bimonthly-units"
+                type="number"
+                placeholder="e.g., 360"
+                value={biMonthlyUnits}
+                onChange={(e) => setBiMonthlyUnits(e.target.value)}
+                className="text-center text-lg"
+              />
+            </div>
+            {units > 0 && (
+              <div className="text-center mt-4">
+                <p className="text-3xl font-bold">
+                  {annualConsumption.toLocaleString()} kWh
+                </p>
+                <p className="text-sm text-muted-foreground">
+                  Annual consumption (6 billing cycles)
+                </p>
+              </div>
+            )}
           </CardHeader>
         </Card>
 
@@ -51,10 +76,10 @@ const Dashboard = () => {
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold">
-                ₹{analyticsData.moneySpentPerAnnum.toLocaleString()}
+                ₹{moneySpentPerAnnum.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
               </div>
               <p className="text-xs text-muted-foreground">
-                Based on current electricity rates
+                Based on TNEB electricity rates
               </p>
             </CardContent>
           </Card>
@@ -68,7 +93,7 @@ const Dashboard = () => {
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold">
-                {analyticsData.co2Emissions} tons
+                {co2Emissions.toFixed(3)} tons
               </div>
               <p className="text-xs text-muted-foreground">
                 Your carbon footprint for 12 months can be tracked with carbon taxes and emission
@@ -88,7 +113,7 @@ const Dashboard = () => {
           </CardHeader>
           <CardContent>
             <div className="text-3xl font-bold text-primary mb-2">
-              ₹{analyticsData.potentialSavings.toLocaleString()}
+              ₹{potentialSavings.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
             </div>
             <p className="text-sm text-muted-foreground mb-4">
               Switch to solar and reduce your electricity consumption by up to 60%
