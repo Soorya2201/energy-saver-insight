@@ -30,3 +30,33 @@ export function tnElectricityCO2(unitsKWh: number, efKgPerKWh = 0.75) {
   const kg = unitsKWh * efKgPerKWh;
   return { kgCO2: +kg.toFixed(2), tCO2: +(kg / 1000).toFixed(3) };
 }
+
+/**
+ * Calculate required solar capacity based on power consumption
+ * @param powerConsumptionKWh Bi-monthly consumption in kWh
+ * @param solarHoursPerDay Average solar hours per day (default: 5 for Tamil Nadu)
+ * @param efficiency System efficiency (default: 0.85)
+ * @param safetyMargin Safety margin factor (default: 0.25)
+ * @param powerFactor Power factor (default: 1)
+ */
+export function calculateSolarCapacity(
+  powerConsumptionKWh: number,
+  solarHoursPerDay: number = 5,
+  efficiency: number = 0.85,
+  safetyMargin: number = 0.25,
+  powerFactor: number = 1
+): number {
+  // 1. Calculate the total daily energy consumption (kWh/day)
+  const dailyPowerConsumption = powerConsumptionKWh / 60; // 60 days in 2 months (bi-monthly)
+
+  // 2. Calculate the required solar capacity (in kW) to meet the energy demand
+  let requiredSolarPower = dailyPowerConsumption / solarHoursPerDay;
+
+  // 3. Account for inefficiency and safety margin
+  requiredSolarPower = (requiredSolarPower / efficiency) * (1 + safetyMargin);
+
+  // 4. Convert to KVA (assuming power factor of 1)
+  const requiredSolarKVA = requiredSolarPower / powerFactor;
+
+  return requiredSolarKVA;
+}

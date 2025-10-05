@@ -7,7 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Zap, TrendingDown, Leaf, ArrowRight } from "lucide-react";
 import tisPureLogo from "@/assets/tis-pure-logo.png";
-import { calculateTNEBBill, tnElectricityCO2 } from "@/lib/electricityCalculations";
+import { calculateTNEBBill, tnElectricityCO2, calculateSolarCapacity } from "@/lib/electricityCalculations";
 
 const Dashboard = () => {
   const navigate = useNavigate();
@@ -21,6 +21,11 @@ const Dashboard = () => {
   const co2Data = tnElectricityCO2(units);
   const co2Emissions = co2Data.tCO2 * 6;
   const potentialSavings = moneySpentPerAnnum * 0.6;
+  
+  // Calculate solar panel requirements
+  const solarCapacityKVA = calculateSolarCapacity(units);
+  const annualUnitsGenerated = solarCapacityKVA * 5 * 365; // 5 hours/day * 365 days
+  const monthlySavings = potentialSavings / 12;
 
   return (
     <div className="min-h-screen bg-background">
@@ -125,18 +130,26 @@ const Dashboard = () => {
         {/* Solar Panel Proposal */}
         <Card>
           <CardHeader>
-            <CardTitle>Your Proposed 3Kva Solar Panel</CardTitle>
+            <CardTitle>
+              Your Proposed {solarCapacityKVA.toFixed(1)}KVA Solar Panel
+            </CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="space-y-2">
               <div className="flex items-center gap-2 text-sm">
                 <div className="w-2 h-2 rounded-full bg-primary" />
-                <span>Generates 4,080 units per year</span>
+                <span>Generates {annualUnitsGenerated.toLocaleString(undefined, { maximumFractionDigits: 0 })} units per year</span>
               </div>
               <div className="flex items-center gap-2 text-sm">
                 <div className="w-2 h-2 rounded-full bg-primary" />
                 <span>
-                  Gives your home ₹2,520 savings per month
+                  Gives your home ₹{monthlySavings.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })} savings per month
+                </span>
+              </div>
+              <div className="flex items-center gap-2 text-sm">
+                <div className="w-2 h-2 rounded-full bg-primary" />
+                <span>
+                  Your home can start earning in: 18 - 25 months (Break even period)
                 </span>
               </div>
             </div>
