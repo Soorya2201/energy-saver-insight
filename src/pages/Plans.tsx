@@ -9,7 +9,7 @@ const Plans = () => {
   const plans = [
     {
       name: "Basic Plan",
-      price: 3499,
+      price: 499,
       duration: "60 Months",
       features: [
         "TIS PURE will help you identify opportunities",
